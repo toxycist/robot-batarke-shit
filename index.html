@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta numeris="viewport" content="width=device-width, initial-scale=1.0">
+    <title>batarkiu vieweris</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            zoom: 168%;
+        }
+        table {
+            width: min-content;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        form {
+            margin-top: 20px;
+        }
+        .pakrauta{
+            background-color: green;
+        }
+        .nepakrauta{
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2>batarkes nx</h2>
+    <table id="batarkiuLenta">
+        <thead>
+            <tr>
+                <th>numeris</th>
+                <th>pakrauta</th>
+                <th>paskutinio pakeitimo laikas</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <h2>pridet nauja</h2>
+    <form id="addBatteryForm">
+        <label for="numeris">numeris:</label>
+        <input type="number" min ="1" id="numeris"><br><br>
+        <label for="pakrauta">pakrauta:</label>
+        <input type="checkbox" id="pakrauta" value="1"><br><br>
+        <input type="submit" value="paconfirmint"></button>
+    </form>
+
+    <script>
+        const server_adress = "http://127.0.0.1:3000"
+        function fetchData() {
+            fetch(server_adress + '/data')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector('#batarkiuLenta tbody');
+                    tableBody.innerHTML = '';
+                    data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        var laikas = new Date(row.laikas);
+                        tr.innerHTML = `
+                            <td>${row.numeris}</td>` + 
+                            `<td class='` + (row.pakrauta ? "pakrauta" : "nepakrauta") + `'>${row.pakrauta ? "teip" : "ne"}</td>` +
+                            `<td>${(new Date(laikas.getTime() - (laikas.getTimezoneOffset() * 60000))).toLocaleTimeString("nl-NL").slice(0, 5)}</td>` +
+                            `<td><button onclick="
+                                fetch(server_adress + '/change?numeris=${row.numeris}', {method: 'PATCH'})
+                                .then(() => {fetchData();})">pakeisti</button></td>
+                            <td><button onclick="
+                                fetch(server_adress + '/delete?numeris=${row.numeris}', {method: 'DELETE'})
+                                .then(() => {fetchData();})">isdeletinti</button></td>`;
+                        tableBody.appendChild(tr);
+                    });
+                });
+        }
+
+        document.getElementById('addBatteryForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const numeris = document.getElementById('numeris').value;
+            const pakrauta = document.getElementById('pakrauta').checked;
+
+            fetch(server_adress + '/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({numeris, pakrauta})
+            })
+            .then(response => response.json())
+            .then(() => {
+                fetchData();
+            });
+        });
+
+        window.onload = fetchData;
+    </script>
+
+</body>
+</html>
+
+<!-- CREATE TABLE "batarkiu_lentele" (
+	"numeris"	INTEGER NOT NULL,
+	"pakrauta"	INTEGER DEFAULT 0,
+	PRIMARY KEY("numeris")
+); -->
