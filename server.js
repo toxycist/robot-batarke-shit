@@ -26,7 +26,13 @@ db.run('CREATE TABLE IF NOT EXISTS "batarkes" (numeris INTEGER NOT NULL, pakraut
 
 app.get('/data', (req, res) => {
     if (req.query.numeris) {
-        return res.redirect(`/change?numeris=${req.query.numeris}`);
+        db.run('UPDATE batarkes SET pakrauta = ABS(pakrauta-1), laikas = current_timestamp WHERE numeris = ?', [numeris], function(err) {
+            if (err) {
+                res.status(500).json(err.message);
+            } else {
+                res.json();
+            }
+        });
     }
     db.all('SELECT * FROM batarkes', (err, rows) => {
         if (err) {
