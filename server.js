@@ -25,6 +25,9 @@ db.run('CREATE TABLE IF NOT EXISTS "batarkes" (numeris INTEGER NOT NULL, pakraut
 });
 
 app.get('/data', (req, res) => {
+    if (req.query.numeris) {
+        return res.redirect(`/change?numeris=${req.query.numeris}`);
+    }
     db.all('SELECT * FROM batarkes', (err, rows) => {
         if (err) {
             res.status(500).json(err.message);
