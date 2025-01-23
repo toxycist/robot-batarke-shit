@@ -80,7 +80,7 @@ function createFile(numeris){
         <head></head>
         <body>
         <script>
-            const server_adress = "https://batarkes.xe1h.xyz/"
+            const server_adress = "https://batarkes.xe1h.xyz"
             window.onload = (() =>fetch(server_adress + '/change?numeris=${numeris}', {method: 'PATCH'}).then(window.location.href="index.html"))
         </script>
         </body>
@@ -97,5 +97,5 @@ app.listen(port, () => {
             rows.forEach(row => {createFile(row.numeris)})
         }
     })
-    console.log(`Server running at https://batarkes.xe1h.xyz/`)
+    console.log(`Server running at https://batarkes.xe1h.xyz`)
 })
