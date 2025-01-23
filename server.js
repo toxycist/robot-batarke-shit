@@ -3,14 +3,13 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
-const { create } = require('domain');
 
 const app = express();
 const port = 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname)));
 
 const db = new sqlite3.Database('./batarkes.db', (err) => {
     if (err) {
@@ -25,6 +24,10 @@ db.run('CREATE TABLE IF NOT EXISTS "batarkes" (numeris INTEGER NOT NULL, pakraut
         console.error("Error creating table:", err);
     }
 });
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/2.html');
+})
 
 app.get('/data', (req, res) => {
     db.all('SELECT * FROM batarkes', (err, rows) => {
@@ -89,8 +92,10 @@ function deleteFile(numeris){
 }
 
 app.listen(port, () => {
-    db.all('SELECT * FROM batarkes', (err, rows) => {rows.forEach(row => {
-        createFile(row.numeris)
-    })})
-    console.log(`Server running at http://127.0.0.1:${port}`);
-});
+    db.all('SELECT * FROM batarkes', (err, rows) => {
+        if (!err){
+            rows.forEach(row => {createFile(row.numeris)})
+        }
+    })
+    console.log(`Server running at http://127.0.0.1:${port}`)
+})
