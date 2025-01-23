@@ -81,7 +81,12 @@ function createFile(numeris){
         <body>
         <script>
             const server_adress = "https://batarkes.xe1h.xyz"
-            window.onload = (() =>fetch(server_adress + '/change?numeris=${numeris}', {method: 'PATCH'}).then(window.location.href="index.html"))
+            window.onload = (() =>fetch(server_adress + '/change?numeris=${numeris}', {method: 'PATCH'}).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            window.location.href = "index.html";
+        }))
         </script>
         </body>
         </html>`)
